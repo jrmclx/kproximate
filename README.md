@@ -1,40 +1,57 @@
-# kproximate — Fork
+# 📋kproximate — Fork
 
 This repository is a fork of the upstream *kproximate* project: [github.com/jedrw/kproximate](https://github.com/jedrw/kproximate)
 
 The original README and installation instructions have been preserved below.
+Note that this fork **does not publish pre-built images** — you will need to build them yourself using the provided Dockerfile.
+*Build instructions have been added to the documentation.*
 
 ## Motivation
 
-The upstream [kproximate](https://github.com/jedrw/kproximate) project relies on TLS-encrypted communication with a RabbitMQ instance delivered by the Bitnami RabbitMQ Helm chart.
+The upstream project relies on TLS-encrypted communication with a RabbitMQ instance delivered by the Bitnami RabbitMQ Helm chart.
 Since Bitnami assets are no longer available, this fork switches to an alternative RabbitMQ chart as a workaround.
 
 ## Modifications
 
-### CloudPirates RabbitMQ chart
+**🔵CloudPirates RabbitMQ chart**
 
-This fork uses the CloudPirates RabbitMQ chart instead of the Bitnami one:
-* [CloudPirates RabbitMQ chart on Artifact Hub](https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq)
-* [CloudPirates RabbitMQ chart on GitHub](https://github.com/CloudPirates-io/helm-charts/tree/main/charts/rabbitmq)
+This fork uses the CloudPirates RabbitMQ chart instead of the Bitnami one: [see on Artifact Hub](https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq), [see on GitHub](https://github.com/CloudPirates-io/helm-charts/tree/main/charts/rabbitmq)
 
-### Self-managed RabbitMQ option
+**🟠Self-managed RabbitMQ option**
 
 An option to disable the RabbitMQ subchart installation has been added, allowing you to manage RabbitMQ independently if desired.
 
-### RabbitMQ TLS made optional
+**🟡RabbitMQ TLS made optional**
 
 The source code has been updated to make TLS connections to RabbitMQ optional.
 This is controlled via the `rabbitMQTLS` environment variable, which can be set through the `kproximate.config.rabbitMQTLS: true/false` Helm value.
 
 TLS is disabled by default to align with the defaults of the CloudPirates RabbitMQ chart.
 
-### Private registry support
+**🟢Private registry support**
 
 This fork assumes you will build your own container images.
 The Helm chart has therefore been updated to support private registries and custom image names.
 
+## Building images
 
-# kproximate
+A single Dockerfile builds both images by specifying the `COMPONENT` build argument.
+
+```bash
+# Controller image
+docker build \
+  --build-arg COMPONENT=controller \
+  --build-arg TARGETARCH=amd64 \
+  --tag kproximate-controller:custom .
+
+# Worker image
+docker build \
+  --build-arg COMPONENT=worker \
+  --build-arg TARGETARCH=amd64 \
+  --tag kproximate-worker:custom .
+```
+
+# 📘kproximate
 
 A node autoscaler project for Proxmox allowing a Kubernetes cluster to dynamically scale across a Proxmox cluster.
 
@@ -55,14 +72,14 @@ While it is a pretty niche project, some possible use cases include:
 
 ## Configuration and Installation
 
-See [here](https://github.com/jedrw/kproximate/tree/main/examples) for example setup scripts and configuration.
+See [here](./examples) for example setup scripts and configuration.
 
 ## Scaling
 
 Kproximate polls the kubernetes cluster by default every 10 seconds looking for unschedulable resources.
 
-**Important**\
-Scaling is calculated based on pod requests. Resource requests must be set for all pods in the cluster which are not fixed to control plane nodes else the cluster may be left with continually pending pods.
+> [!IMPORTANT]
+> Scaling is calculated based on pod requests. Resource **requests must be set** for all pods in the cluster which are not fixed to control plane nodes else the cluster may be left with continually pending pods.
 
 ## Scaling Up
 
