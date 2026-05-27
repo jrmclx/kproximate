@@ -20,12 +20,16 @@ spec:
       labels:
         {{- include "kproximate.controllerSelectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "kproximate.fullname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: "{{ .Chart.Name }}-controller"
-          image: "{{ .Values.image.registry }}/kproximate-controller:{{ .Chart.AppVersion }}"
+          image: '{{ .Values.image.registry }}/{{ .Values.image.controllerImage | default "kproximate-controller" }}:{{ .Values.image.tag | default .Chart.AppVersion }}'
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
           - configMapRef:
@@ -48,15 +52,15 @@ spec:
               matchExpressions:
               - key: node-role.kubernetes.io/control-plane
                 operator: Exists
-              - key: node-role.kubernetes.io/master
-                operator: Exists
+              # - key: node-role.kubernetes.io/master
+              #   operator: Exists
       tolerations:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
-        - key: node-role.kubernetes.io/master
-          operator: Exists 
-          effect: NoSchedule
+        # - key: node-role.kubernetes.io/master
+        #   operator: Exists 
+        #   effect: NoSchedule
       {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

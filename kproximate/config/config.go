@@ -39,6 +39,7 @@ type RabbitConfig struct {
 	Password string `env:"rabbitMQPassword"`
 	Port     int    `env:"rabbitMQPort"`
 	User     string `env:"rabbitMQUser"`
+	TLS 	 bool	`env:"rabbitMQTLS"`
 }
 
 func GetKpConfig() (KproximateConfig, error) {
