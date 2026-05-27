@@ -1,3 +1,39 @@
+# kproximate — Fork
+
+This repository is a fork of the upstream *kproximate* project: [github.com/jedrw/kproximate](https://github.com/jedrw/kproximate)
+
+The original README and installation instructions have been preserved below.
+
+## Motivation
+
+The upstream [kproximate](https://github.com/jedrw/kproximate) project relies on TLS-encrypted communication with a RabbitMQ instance delivered by the Bitnami RabbitMQ Helm chart.
+Since Bitnami assets are no longer available, this fork switches to an alternative RabbitMQ chart as a workaround.
+
+## Modifications
+
+### CloudPirates RabbitMQ chart
+
+This fork uses the CloudPirates RabbitMQ chart instead of the Bitnami one:
+* [CloudPirates RabbitMQ chart on Artifact Hub](https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq)
+* [CloudPirates RabbitMQ chart on GitHub](https://github.com/CloudPirates-io/helm-charts/tree/main/charts/rabbitmq)
+
+### Self-managed RabbitMQ option
+
+An option to disable the RabbitMQ subchart installation has been added, allowing you to manage RabbitMQ independently if desired.
+
+### RabbitMQ TLS made optional
+
+The source code has been updated to make TLS connections to RabbitMQ optional.
+This is controlled via the `rabbitMQTLS` environment variable, which can be set through the `kproximate.config.rabbitMQTLS: true/false` Helm value.
+
+TLS is disabled by default to align with the defaults of the CloudPirates RabbitMQ chart.
+
+### Private registry support
+
+This fork assumes you will build your own container images.
+The Helm chart has therefore been updated to support private registries and custom image names.
+
+
 # kproximate
 
 A node autoscaler project for Proxmox allowing a Kubernetes cluster to dynamically scale across a Proxmox cluster.

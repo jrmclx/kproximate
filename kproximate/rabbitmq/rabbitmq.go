@@ -17,20 +17,25 @@ type queueInfo struct {
 }
 
 func NewRabbitmqConnection(rabbitConfig config.RabbitConfig) (*amqp.Connection, *http.Client) {
-	tls := &tls.Config{InsecureSkipVerify: true}
+	var conn *amqp.Connection
+    var err error
+    var mgmtClient *http.Client
+	
+	if rabbitConfig.TLS {
+        tlsConfig := &tls.Config{InsecureSkipVerify: true}
+        rabbitMQUrl := fmt.Sprintf("amqps://%s:%s@%s:%d/", rabbitConfig.User, rabbitConfig.Password, rabbitConfig.Host, rabbitConfig.Port)
+        conn, err = amqp.DialTLS(rabbitMQUrl, tlsConfig)
+        tr := &http.Transport{TLSClientConfig: tlsConfig}
+        mgmtClient = &http.Client{Transport: tr}
+    } else {
+        rabbitMQUrl := fmt.Sprintf("amqp://%s:%s@%s:%d/", rabbitConfig.User, rabbitConfig.Password, rabbitConfig.Host, rabbitConfig.Port)
+        conn, err = amqp.Dial(rabbitMQUrl)
+        mgmtClient = &http.Client{}
+    }
 
-	rabbitMQUrl := fmt.Sprintf("amqps://%s:%s@%s:%d/", rabbitConfig.User, rabbitConfig.Password, rabbitConfig.Host, rabbitConfig.Port)
-
-	conn, err := amqp.DialTLS(rabbitMQUrl, tls)
+	
 	if err != nil {
 		logger.ErrorLog("Failed to connect to RabbitMQ", "error", err)
-	}
-
-	tr := &http.Transport{
-		TLSClientConfig: tls,
-	}
-	mgmtClient := &http.Client{
-		Transport: tr,
 	}
 
 	return conn, mgmtClient
