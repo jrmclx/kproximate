@@ -26,6 +26,12 @@ type ProxmoxScaler struct {
 	Proxmox    proxmox.Proxmox
 }
 
+// EncodeSSHKeys returns the given SSH public keys encoded the way Proxmox's sshkeys parameter requires.
+// Source: https://github.com/luthermonson/go-proxmox/pull/273
+func EncodeSSHKeys(keys ...string) string {
+	return strings.ReplaceAll(url.QueryEscape(strings.Join(keys, "\n")), "+", "%20")
+}
+
 func NewProxmoxScaler(ctx context.Context, config config.KproximateConfig) (Scaler, error) {
 	kubernetes, err := kubernetes.NewKubernetesClient()
 	if err != nil {
@@ -49,7 +55,7 @@ func NewProxmoxScaler(ctx context.Context, config config.KproximateConfig) (Scal
 	}
 
 	if !config.KpNodeDisableSsh {
-		config.KpNodeParams["sshkeys"] = strings.Replace(url.QueryEscape(config.SshKey), "+", "%20", 1)
+		config.KpNodeParams["sshkeys"] = EncodeSSHKeys(config.SshKey)
 	}
 
 	scaler := ProxmoxScaler{
