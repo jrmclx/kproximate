@@ -50,6 +50,16 @@ docker build \
   --build-arg TARGETARCH=amd64 \
   --tag kproximate-worker:custom .
 ```
+You can use the provided `build.sh` script to build and push both images in a single command.
+All arguments are required.
+
+```bash
+./build.sh \
+  --controller kproximate-controller \
+  --worker kproximate-worker \
+  --registry registry.example.com/myproject \
+  --tag custom
+```
 
 # 📘kproximate
 
